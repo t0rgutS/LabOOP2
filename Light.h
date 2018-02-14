@@ -7,7 +7,7 @@ class TrLight{
     ind curr;
     public:
         TrLight();
-        void flash();
+        void automat();
         void curColor();
         void work();
         void changeColor(char);

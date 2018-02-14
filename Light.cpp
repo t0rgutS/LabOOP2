@@ -24,60 +24,83 @@ void TrLight::curColor() {
     }
 }
 
-void TrLight::flash() {
-    if (curr == flashyel) {
-        curr = yellow;
-        printf("Режим светофора успешно переключен на работу в штатном режиме.\n");
-    } else {
-        curr = flashyel;
-        printf("Режим светофора успешно переключен на: Мигающий желтый.\n");
-    }
-}
-
-void TrLight::changeColor(char key) {
+void TrLight::automat() {
     int t;
+    bool b;
     if (curr != flashyel) {
-        if ((curr == green && key == 's') || (curr == red && key == 'w'))
-            printf("Ошибка! Невозможно переключить цвет!\n");
-        else {
-            if (curr == green || curr == red)
-                curr = yellow;
-            else if (curr == yellow)
-                key == 'w' ? curr = red : curr = green;
-            printf("Цвет успешно переключен на ");
-            curColor();
+        printf("Включен режим автоматической работы. Для перехода к ручному управлению введите любой символ.\n");
+        while (!kbhit()) {
             if (curr == green || curr == red) {
-                printf("Через 30 секунд светофор переключит цвет автоматически."
-                               "Чтобы перейти к ручному управлению раньше - введите любой символ.\n");
+                curr == green ? b = true : b = false;
                 t = 30;
                 while (!kbhit() && t > 0) {
                     printf("%d\n", t);
                     t--;
                     Sleep(1000);
                 }
-                if (t == 0)
+                if (t == 0) {
                     curr = yellow;
-                else
-                    while (getchar() != '\n');
+                    printf("Цвет переключен на Желтый.\n");
+                }
+            } else {
+                t = 5;
+                while (!kbhit() && t > 0) {
+                    printf("%d\n", t);
+                    t--;
+                    Sleep(1000);
+                }
+                if (t == 0) {
+                    b == true ? curr = red : curr = green;
+                    printf("Цвет переключен на ");
+                    curColor();
+                }
             }
         }
+        while (getchar() != '\n');
     } else
-        printf("Невозможно переключить цвет!\nСветофор работает в режиме Мигающий желтый!\n");
+        printf("Автоматический режим недоступен!\nСветофор работает в режиме Мигающий желтый!\n");
+}
+
+void TrLight::changeColor(char key) {
+    int t;
+    if (key != 'r') {
+        if (curr != flashyel) {
+            if ((curr == green && key == 's') || (curr == red && key == 'w'))
+                printf("Ошибка! Невозможно переключить цвет!\n");
+            else {
+                if (curr == green || curr == red)
+                    curr = yellow;
+                else if (curr == yellow)
+                    key == 'w' ? curr = red : curr = green;
+                printf("Цвет успешно переключен на ");
+                curColor();
+            }
+        } else
+            printf("Невозможно переключить цвет!\nСветофор работает в режиме Мигающий желтый!\n");
+    } else if (curr == flashyel) {
+        curr = yellow;
+        printf("Режим светофора успешно переключен на работу в штатном режиме.\n");
+    } else {
+        curr = flashyel;
+        printf("Режим работы светофора успешно переключен на Мигающий желтый.\n");
+    }
+
 }
 
 void TrLight::work() {
     char k;
     do {
         printf("Введите:\n\t'w' - переключатель вверх;\n\t's' - переключатель вниз;"
-                       "\n\t'r' - переключатель режима работы;\n\t'e' - выход.\nТекущий цвет: ");
+                       "\n\t'r' - переключатель режима работы со стандартного на 'мигающий желтый';\n\t"
+                       "'a' - режим автоматической работы;\n\t'e' - выход.\nТекущий цвет: ");
         curColor();
         k = getchar();
         fflush(stdin);
         k = tolower(k);
-        if (k == 'w' || k == 's') {
+        if (k == 'w' || k == 's' || k == 'r') {
             changeColor(k);
-        } else if (k == 'r')
-            flash();
+        } else if (k == 'a')
+            automat();
         else if (k != 'e') {
             printf("ОШИБКА! Введен неверный символ. Пожалуйста, повторите ввод.\n");
         }
